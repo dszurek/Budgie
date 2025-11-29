@@ -170,10 +170,13 @@ struct ShoppingListsView: View {
                                                                     .fill(cardBackground)
                                                                     .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
                                                             )
-                                                            // Highlight border if scheduled for today and not purchased
+                                                            // Highlight border if scheduled for today and not purchased, otherwise thin outline
                                                             .overlay(
                                                                 RoundedRectangle(cornerRadius: 12)
-                                                                    .stroke(Color.orange, lineWidth: (item.calculatedPurchaseDate != nil && Calendar.current.isDateInToday(item.calculatedPurchaseDate!) && !(item.isPurchased ?? false)) ? 2 : 0)
+                                                                    .stroke(
+                                                                        (item.calculatedPurchaseDate != nil && Calendar.current.isDateInToday(item.calculatedPurchaseDate!) && !(item.isPurchased ?? false)) ? Color.orange : Color.primary.opacity(0.1),
+                                                                        lineWidth: (item.calculatedPurchaseDate != nil && Calendar.current.isDateInToday(item.calculatedPurchaseDate!) && !(item.isPurchased ?? false)) ? 2 : 1
+                                                                    )
                                                             )
                                                         }
                                                         .buttonStyle(.plain) // Keep list styling
