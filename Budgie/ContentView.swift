@@ -69,7 +69,7 @@ struct ContentView: View {
                     )
                     .cornerRadius(30)
                     .shadow(color: .black.opacity(0.2), radius: 20, x: 0, y: 10)
-                    // Removed overlay stroke as requested
+
                     .padding(.horizontal, 16)
                     .padding(.bottom, 10)
             }

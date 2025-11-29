@@ -109,7 +109,6 @@ struct TimelineGraphView: View {
                                 selectedCluster = cluster
                             }
                             // Reset selection immediately so we can tap again?
-                            // Or keep it? If we keep it, the sheet opens.
                         }
                     }
                     .sheet(item: $selectedCluster) { (cluster: PurchaseCluster) in
@@ -272,10 +271,6 @@ struct TimelineGraphView: View {
     // ... (rest of view)
     
     // We need to wrap the Chart in a way to handle selection.
-    // Since we are inside a ScrollView, Chart selection can be tricky.
-    // We'll use a transparent overlay with a TapGesture if Chart selection is complex,
-    // OR use the .chartOverlay to find the tapped element.
-    // Given the complexity of "tap a point", the most robust way in SwiftUI Charts is `chartSelection`.
     
     @State private var selectedDate: Date?
 

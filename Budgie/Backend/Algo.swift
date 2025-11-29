@@ -9,47 +9,8 @@ import SwiftData // Assuming your models are SwiftData @Model classes
 
 // MARK: - Data Structures (Mirrors or uses your existing SwiftData models)
 
-// Assuming User.swift exists with:
-// @Model class User {
-//     var startingBalance: Double
-//     var rainCheckMin: Double // Renamed from rainCheckBalance for consistency with your User model
-//     // ... other properties
-// }
+// MARK: - Data Structures (Mirrors or uses your existing SwiftData models)
 
-// Assuming Income.swift exists with:
-// @Model class Income {
-//     var id: UUID = UUID()
-//     var name: String
-//     var amount: Double
-//     var type: Frequency // Your existing enum: weekly, biweekly, monthly, yearly, intermittent
-//     var startDate: Date
-//     var endDate: Date?
-//     var intermittentDates: [Date]?
-//     // ... other properties like taxPercent
-// }
-
-// Assuming Expense.swift exists with:
-// @Model class Expense {
-//     var id: UUID = UUID()
-//     var name: String
-//     var cost: Double
-//     var type: Frequency // Your existing enum
-//     var startDate: Date
-//     var endDate: Date?
-//     var intermittentDates: [Date]?
-//     // ... other properties
-// }
-
-// Assuming ShoppingListItem.swift exists with:
-// @Model class ShoppingListItem {
-//     var id: UUID = UUID()
-//     var name: String
-//     var price: Double
-//     var purchaseByDate: Date // Renamed from desiredPurchaseByDate for consistency
-//     var isPurchased: Bool? // Default to false if nil
-//     var calculatedPurchaseDate: Date?
-//     // ... other properties
-// }
 
 // MARK: - Recurrence Rule Definition (Simplified for now)
 // This can be expanded later to support more complex rules.
@@ -214,7 +175,6 @@ class PurchaseScheduler {
                 //    This treats the current balance as the "hard truth" for today.
                 if eventDate < now || (isEventToday && isBalanceFresh) {
                     // Skip this event as it's already accounted for in the current balance
-                    // print("  ⏭️ Skipping event: \(mandatoryEvents[tempEventIndex].title) (Already in balance)")
                 } else {
                     tempBalance += mandatoryEvents[tempEventIndex].amount
                 }
@@ -262,25 +222,16 @@ class PurchaseScheduler {
         // If user has disabled hard rain check, use 0 as minimum
         // Otherwise use their specified rainCheckMin (but never go below 0)
         let effectiveRainCheck = user.isRainCheckHardConstraint ? max(user.rainCheckMin, 0) : 0
-        // print("🧮 Algorithm Parameters:")
-        // print("   - effectiveRainCheck: $\(effectiveRainCheck)")
-        // print("   - searchWindowMonths: \(user.searchWindowMonths)")
-        // print("   - Pending items: \(pendingShoppingItems.count)")
         
         // Now schedule items
-        // print("\n🛍️ Scheduling \(pendingShoppingItems.count) items...")
         for item in pendingShoppingItems {
-            // print("\n  Item: '\(item.name)' - $\(item.price)")
             var desiredDate = calendar.startOfDay(for: item.purchaseByDate)
             
             // Handle past desired dates - move to today
             let today = calendar.startOfDay(for: Date())
             if desiredDate < today {
-                // print("  ⚠️ Desired date is in the past, adjusting to today")
                 desiredDate = today
             }
-            
-            // print("  Desired date: \(desiredDate.formatted(.dateTime.month().day().year()))")
             let windowMonths = user.searchWindowMonths
             
             // Define Search Window
@@ -290,8 +241,6 @@ class PurchaseScheduler {
             // Clamp window to projection range
             let searchStart = max(windowStart, projectionStartDate)
             let searchEnd = min(windowEnd, effectiveProjectionEndDate)
-            // print("  Search window: \(searchStart.formatted(.dateTime.month().day())) to \(searchEnd.formatted(.dateTime.month().day()))")
-            // print("  Days to check: \(calendar.dateComponents([.day], from: searchStart, to: searchEnd).day ?? 0)")
             
             var bestDate: Date?
             var bestScore: Double = -Double.infinity
@@ -326,7 +275,6 @@ class PurchaseScheduler {
                             rejectionReasons.append("\(startOfCheckDate.formatted(.dateTime.month().day())): \(rejectionReason)")
                         }
                         // Always track the last reason to show the user "how far we looked"
-                        // lastRejectionReason = reason // Removed unused assignment
                     }
                     
                     if isSafe {
@@ -393,7 +341,6 @@ class PurchaseScheduler {
             
             // 2. Secondary Search: Extended Range (if no date found)
             if bestDate == nil {
-                print("  ⚠️ No date found in window, extending search to full projection...")
                 // Search forward from window end
                 if let nextStart = calendar.date(byAdding: .day, value: 1, to: searchEnd), nextStart <= effectiveProjectionEndDate {
                      checkRange(start: nextStart, end: effectiveProjectionEndDate)
@@ -406,7 +353,6 @@ class PurchaseScheduler {
             
             // Schedule if found
             if let date = bestDate {
-                print("  ✅ Found optimal date: \(date.formatted(.dateTime.month().day().year())) with score: \(bestScore)")
                 if let originalIndex = shoppingListItems.firstIndex(where: { $0.id == item.id }) {
                     shoppingListItems[originalIndex].calculatedPurchaseDate = date
                     shoppingListItems[originalIndex].calculationError = nil // Clear error
@@ -455,12 +401,6 @@ class PurchaseScheduler {
                     reverseDate = prev
                 }
             } else {
-                // print("  ❌ No valid date found for '\(item.name)'")
-                // print("  Checked \(datesChecked) dates. Sample rejections:")
-                // for reason in rejectionReasons.prefix(5) {
-                //    print("     - \(reason)")
-                // }
-                
                 // Set error on item
                 if let originalIndex = shoppingListItems.firstIndex(where: { $0.id == item.id }) {
                     shoppingListItems[originalIndex].calculatedPurchaseDate = nil

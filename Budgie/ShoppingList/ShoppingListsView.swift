@@ -25,7 +25,7 @@ struct ShoppingListsView: View {
     @State private var editingItem: ShoppingListItem?
     @State private var selectedItem: ShoppingListItem?
     @State private var itemToMarkPurchased: ShoppingListItem?
-    @State private var showRenameList = false // Kept for safety if referenced elsewhere, but logic moved to listToRename sheet
+    @State private var showRenameList = false
     @State private var listToRename: ShoppingList?
     
     @State private var newItemName = ""
@@ -54,7 +54,7 @@ struct ShoppingListsView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // 0. Base Background (Removed to reveal ContentView header)
+            // 0. Base Background
 
             
             // 1. Header Background (Handled in ContentView)

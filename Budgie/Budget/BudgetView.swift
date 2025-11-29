@@ -50,7 +50,7 @@ struct BudgetView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // 0. Base Background (Removed to reveal ContentView header)
+            // 0. Base Background
 
             
             // 1. Header Background (Handled in ContentView)
