@@ -6,6 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B43EEF0E2DCA9002007703B3 /* FloatingButton in Frameworks */ = {isa = PBXBuildFile; productRef = B43EEF0D2DCA9002007703B3 /* FloatingButton */; };
+		B43EEF2B2DCBFACB007703B3 /* BottomBar-SwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B43EEF2A2DCBFACB007703B3 /* BottomBar-SwiftUI */; };
+		B4A2B9F32ED6F9A40052D0A8 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A2B9F22ED6F9A40052D0A8 /* WidgetKit.framework */; };
+		B4A2B9F52ED6F9A40052D0A8 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A2B9F42ED6F9A40052D0A8 /* SwiftUI.framework */; };
+		B4A2BA062ED6F9A70052D0A8 /* graphWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B4A2B9F02ED6F9A40052D0A8 /* graphWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		B43EEEAE2DC9253B007703B3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,17 +29,62 @@
 			remoteGlobalIDString = B43EEE9C2DC92536007703B3;
 			remoteInfo = Budgie;
 		};
+		B4A2BA042ED6F9A70052D0A8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B43EEE952DC92536007703B3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B4A2B9EF2ED6F9A40052D0A8;
+			remoteInfo = graphWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		B4A2BA0B2ED6F9A70052D0A8 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B4A2BA062ED6F9A70052D0A8 /* graphWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		B41D3D342ED78F04004CB4B7 /* graphWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = graphWidgetExtension.entitlements; sourceTree = "<group>"; };
 		B43EEE9D2DC92536007703B3 /* Budgie.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Budgie.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B43EEEAD2DC9253B007703B3 /* BudgieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BudgieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B43EEEB72DC9253B007703B3 /* BudgieUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BudgieUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4A2B9F02ED6F9A40052D0A8 /* graphWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = graphWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4A2B9F22ED6F9A40052D0A8 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		B4A2B9F42ED6F9A40052D0A8 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B4A2BA072ED6F9A70052D0A8 /* Exceptions for "graphWidget" folder in "graphWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B4A2B9EF2ED6F9A40052D0A8 /* graphWidgetExtension */;
+		};
+		B4A2BA0D2ED6FBC00052D0A8 /* Exceptions for "Budgie" folder in "graphWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Backend/WidgetData.swift,
+			);
+			target = B4A2B9EF2ED6F9A40052D0A8 /* graphWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B43EEE9F2DC92536007703B3 /* Budgie */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B4A2BA0D2ED6FBC00052D0A8 /* Exceptions for "Budgie" folder in "graphWidgetExtension" target */,
+			);
 			path = Budgie;
 			sourceTree = "<group>";
 		};
@@ -45,6 +98,14 @@
 			path = BudgieUITests;
 			sourceTree = "<group>";
 		};
+		B4A2B9F62ED6F9A40052D0A8 /* graphWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B4A2BA072ED6F9A70052D0A8 /* Exceptions for "graphWidget" folder in "graphWidgetExtension" target */,
+			);
+			path = graphWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +113,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B43EEF0E2DCA9002007703B3 /* FloatingButton in Frameworks */,
+				B43EEF2B2DCBFACB007703B3 /* BottomBar-SwiftUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,15 +132,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B4A2B9ED2ED6F9A40052D0A8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B4A2B9F52ED6F9A40052D0A8 /* SwiftUI.framework in Frameworks */,
+				B4A2B9F32ED6F9A40052D0A8 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		B43EEE942DC92536007703B3 = {
 			isa = PBXGroup;
 			children = (
+				B41D3D342ED78F04004CB4B7 /* graphWidgetExtension.entitlements */,
 				B43EEE9F2DC92536007703B3 /* Budgie */,
 				B43EEEB02DC9253B007703B3 /* BudgieTests */,
 				B43EEEBA2DC9253B007703B3 /* BudgieUITests */,
+				B4A2B9F62ED6F9A40052D0A8 /* graphWidget */,
+				B4A2B9F12ED6F9A40052D0A8 /* Frameworks */,
 				B43EEE9E2DC92536007703B3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,8 +163,18 @@
 				B43EEE9D2DC92536007703B3 /* Budgie.app */,
 				B43EEEAD2DC9253B007703B3 /* BudgieTests.xctest */,
 				B43EEEB72DC9253B007703B3 /* BudgieUITests.xctest */,
+				B4A2B9F02ED6F9A40052D0A8 /* graphWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B4A2B9F12ED6F9A40052D0A8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B4A2B9F22ED6F9A40052D0A8 /* WidgetKit.framework */,
+				B4A2B9F42ED6F9A40052D0A8 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,16 +187,20 @@
 				B43EEE992DC92536007703B3 /* Sources */,
 				B43EEE9A2DC92536007703B3 /* Frameworks */,
 				B43EEE9B2DC92536007703B3 /* Resources */,
+				B4A2BA0B2ED6F9A70052D0A8 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B4A2BA052ED6F9A70052D0A8 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				B43EEE9F2DC92536007703B3 /* Budgie */,
 			);
 			name = Budgie;
 			packageProductDependencies = (
+				B43EEF0D2DCA9002007703B3 /* FloatingButton */,
+				B43EEF2A2DCBFACB007703B3 /* BottomBar-SwiftUI */,
 			);
 			productName = Budgie;
 			productReference = B43EEE9D2DC92536007703B3 /* Budgie.app */;
@@ -163,6 +252,28 @@
 			productReference = B43EEEB72DC9253B007703B3 /* BudgieUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		B4A2B9EF2ED6F9A40052D0A8 /* graphWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B4A2BA082ED6F9A70052D0A8 /* Build configuration list for PBXNativeTarget "graphWidgetExtension" */;
+			buildPhases = (
+				B4A2B9EC2ED6F9A40052D0A8 /* Sources */,
+				B4A2B9ED2ED6F9A40052D0A8 /* Frameworks */,
+				B4A2B9EE2ED6F9A40052D0A8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B4A2B9F62ED6F9A40052D0A8 /* graphWidget */,
+			);
+			name = graphWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = graphWidgetExtension;
+			productReference = B4A2B9F02ED6F9A40052D0A8 /* graphWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -170,8 +281,8 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1630;
-				LastUpgradeCheck = 1630;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					B43EEE9C2DC92536007703B3 = {
 						CreatedOnToolsVersion = 16.3;
@@ -184,6 +295,9 @@
 						CreatedOnToolsVersion = 16.3;
 						TestTargetID = B43EEE9C2DC92536007703B3;
 					};
+					B4A2B9EF2ED6F9A40052D0A8 = {
+						CreatedOnToolsVersion = 26.1;
+					};
 				};
 			};
 			buildConfigurationList = B43EEE982DC92536007703B3 /* Build configuration list for PBXProject "Budgie" */;
@@ -195,6 +309,10 @@
 			);
 			mainGroup = B43EEE942DC92536007703B3;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B43EEF0C2DCA9002007703B3 /* XCRemoteSwiftPackageReference "FloatingButton" */,
+				B43EEF292DCBFACB007703B3 /* XCRemoteSwiftPackageReference "bottombar-swiftui" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B43EEE9E2DC92536007703B3 /* Products */;
 			projectDirPath = "";
@@ -203,6 +321,7 @@
 				B43EEE9C2DC92536007703B3 /* Budgie */,
 				B43EEEAC2DC9253B007703B3 /* BudgieTests */,
 				B43EEEB62DC9253B007703B3 /* BudgieUITests */,
+				B4A2B9EF2ED6F9A40052D0A8 /* graphWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +342,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B43EEEB52DC9253B007703B3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B4A2B9EE2ED6F9A40052D0A8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +379,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B4A2B9EC2ED6F9A40052D0A8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +398,11 @@
 			isa = PBXTargetDependency;
 			target = B43EEE9C2DC92536007703B3 /* Budgie */;
 			targetProxy = B43EEEB82DC9253B007703B3 /* PBXContainerItemProxy */;
+		};
+		B4A2BA052ED6F9A70052D0A8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B4A2B9EF2ED6F9A40052D0A8 /* graphWidgetExtension */;
+			targetProxy = B4A2BA042ED6F9A70052D0A8 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -303,6 +441,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -325,6 +464,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -364,6 +504,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -379,6 +520,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
@@ -388,11 +530,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Budgie/Budgie.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 9XULPRS75D;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Budgie;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -401,22 +550,21 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = DSzurek.Budgie;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 2.4;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
 		};
@@ -425,11 +573,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Budgie/Budgie.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 9XULPRS75D;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Budgie;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -438,22 +593,21 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = DSzurek.Budgie;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 2.4;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
 		};
@@ -463,6 +617,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
@@ -470,7 +625,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = DSzurek.BudgieTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
@@ -485,6 +640,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
@@ -492,7 +648,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = DSzurek.BudgieTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
@@ -506,6 +662,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
@@ -513,7 +670,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = DSzurek.BudgieUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
@@ -527,6 +684,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
@@ -534,12 +692,79 @@
 				PRODUCT_BUNDLE_IDENTIFIER = DSzurek.BudgieUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				TEST_TARGET_NAME = Budgie;
 				XROS_DEPLOYMENT_TARGET = 2.4;
+			};
+			name = Release;
+		};
+		B4A2BA092ED6F9A70052D0A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = graphWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9XULPRS75D;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = graphWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Budgie Widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = DSzurek.Budgie.graphWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B4A2BA0A2ED6F9A70052D0A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = graphWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9XULPRS75D;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = graphWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Budgie Widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = DSzurek.Budgie.graphWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -582,7 +807,48 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		B4A2BA082ED6F9A70052D0A8 /* Build configuration list for PBXNativeTarget "graphWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B4A2BA092ED6F9A70052D0A8 /* Debug */,
+				B4A2BA0A2ED6F9A70052D0A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B43EEF0C2DCA9002007703B3 /* XCRemoteSwiftPackageReference "FloatingButton" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dszurek/FloatingButton.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		B43EEF292DCBFACB007703B3 /* XCRemoteSwiftPackageReference "bottombar-swiftui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dszurek/bottombar-swiftui.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B43EEF0D2DCA9002007703B3 /* FloatingButton */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B43EEF0C2DCA9002007703B3 /* XCRemoteSwiftPackageReference "FloatingButton" */;
+			productName = FloatingButton;
+		};
+		B43EEF2A2DCBFACB007703B3 /* BottomBar-SwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B43EEF292DCBFACB007703B3 /* XCRemoteSwiftPackageReference "bottombar-swiftui" */;
+			productName = "BottomBar-SwiftUI";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B43EEE952DC92536007703B3 /* Project object */;
 }

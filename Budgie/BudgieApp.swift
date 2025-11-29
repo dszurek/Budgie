@@ -12,7 +12,13 @@ import SwiftData
 struct BudgieApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            ShoppingList.self,
+            ShoppingListItem.self,
+            Income.self,
+            Expense.self,
+            User.self,
+            DatedFinancialEvent.self,
+            IntermittentDate.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -23,10 +29,40 @@ struct BudgieApp: App {
         }
     }()
 
+    @Environment(\.scenePhase) var scenePhase
+    @State private var updateMessage: String?
+    @State private var showUpdateAlert = false
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear {
+                    NotificationManager.shared.requestPermission()
+                }
+                .alert("Balance Updated", isPresented: $showUpdateAlert) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text(updateMessage ?? "")
+                }
         }
         .modelContainer(sharedModelContainer)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                checkForBalanceUpdates()
+            }
+        }
+    }
+    
+    private func checkForBalanceUpdates() {
+        Task { @MainActor in
+            let context = sharedModelContainer.mainContext
+            let descriptor = FetchDescriptor<User>()
+            if let user = try? context.fetch(descriptor).first {
+                if let message = BalanceManager.shared.updateBalanceForPassedEvents(user: user, modelContext: context) {
+                    updateMessage = message
+                    showUpdateAlert = true
+                }
+            }
+        }
     }
 }
