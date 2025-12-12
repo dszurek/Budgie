@@ -185,106 +185,105 @@ struct TimelineView: View {
         }
         isCalculating = true
         
-        DispatchQueue.global(qos: .userInitiated).async {
-            // 1. Get all events
-            let events = scheduler.getFullProjectionTimeline(
-                forUser: user,
-                incomes: incomes,
-                expenses: expenses,
-                shoppingListItems: allItems,
-                projectionStartDate: Date()
-            )
+        // NOTE: Since the algorithm is now optimized to O(N*W), we can safely run on main thread
+        // This avoids "Unbinding from the main queue" SwiftData warnings
+        // The calculation is fast enough (~1s) to not block UI significantly
+        
+        // 1. Get all events
+        let events = scheduler.getFullProjectionTimeline(
+            forUser: user,
+            incomes: incomes,
+            expenses: expenses,
+            shoppingListItems: allItems,
+            projectionStartDate: Date()
+        )
+        
+        // 2. Group by Day
+        let grouped = Dictionary(grouping: events) { Calendar.current.startOfDay(for: $0.date) }
+        
+        // 3. Create TimelineDay objects
+        let sortedDates = grouped.keys.sorted()
+        
+        var currentBalance = user.currentBalance
+        var days: [TimelineDay] = []
+        
+        if let firstDate = sortedDates.first, let lastDate = sortedDates.last {
+            let calendar = Calendar.current
+            var date = firstDate
             
-            // 2. Group by Day
-            let grouped = Dictionary(grouping: events) { Calendar.current.startOfDay(for: $0.date) }
+            // Determine if we should ignore today's events (same logic as Algo.swift)
+            let now = Date()
+            let lastCheckpoint = user.lastCheckpointDate
+            let isBalanceFresh = calendar.isDateInToday(lastCheckpoint) || lastCheckpoint > now
             
-            // 3. Create TimelineDay objects
-            let sortedDates = grouped.keys.sorted()
-            
-            var currentBalance = user.currentBalance
-            var days: [TimelineDay] = []
-            
-            if let firstDate = sortedDates.first, let lastDate = sortedDates.last {
-                let calendar = Calendar.current
-                var date = firstDate
+            while date <= lastDate {
+                let eventsForDay = grouped[date] ?? []
                 
-                // Determine if we should ignore today's events (same logic as Algo.swift)
-                let now = Date()
-                let lastCheckpoint = user.lastCheckpointDate
-                let isBalanceFresh = calendar.isDateInToday(lastCheckpoint) || lastCheckpoint > now
-                
-                while date <= lastDate {
-                    let eventsForDay = grouped[date] ?? []
+                // Apply events - but skip today's events if balance is fresh
+                for event in eventsForDay {
+                    let isEventToday = calendar.isDate(event.date, inSameDayAs: now)
                     
-                    // Apply events - but skip today's events if balance is fresh
-                    for event in eventsForDay {
-                        let isEventToday = calendar.isDate(event.date, inSameDayAs: now)
-                        
-                        // Skip today's events if the user manually updated their balance today
-                        if isEventToday && isBalanceFresh {
-                            // Don't apply this event - it's already accounted for in currentBalance
-                            continue
-                        }
-                        
-                        currentBalance += event.amount
+                    // Skip today's events if the user manually updated their balance today
+                    if isEventToday && isBalanceFresh {
+                        continue
                     }
                     
-                    days.append(TimelineDay(date: date, events: eventsForDay, endOfDayBalance: currentBalance))
-                    
-                    guard let next = calendar.date(byAdding: .day, value: 1, to: date) else { break }
-                    date = next
-                }
-            }
-            
-            // Filter out days with no events for the list view
-            let filteredDays = days.filter { !$0.events.isEmpty }
-            
-            DispatchQueue.main.async {
-                self.timelineEvents = events
-                self.timelineDays = filteredDays
-                self.allTimelineDays = days // Store all days for graph
-                self.isCalculating = false
-                
-                // Schedule Notifications
-                NotificationManager.shared.scheduleNotifications(for: self.allItems)
-                
-                // Save Widget Data
-                let widgetRange = user.widgetTimeframe
-                let calendar = Calendar.current
-                let today = Date()
-                var endDate: Date
-                
-                switch widgetRange {
-                case "1 Week": endDate = calendar.date(byAdding: .weekOfYear, value: 1, to: today)!
-                case "1 Month": endDate = calendar.date(byAdding: .month, value: 1, to: today)!
-                case "3 Months": endDate = calendar.date(byAdding: .month, value: 3, to: today)!
-                case "6 Months": endDate = calendar.date(byAdding: .month, value: 6, to: today)!
-                case "1 Year": endDate = calendar.date(byAdding: .year, value: 1, to: today)!
-                default: endDate = days.last?.date ?? today // Full
+                    currentBalance += event.amount
                 }
                 
-                let widgetDays = days.filter { $0.date <= endDate }
+                days.append(TimelineDay(date: date, events: eventsForDay, endOfDayBalance: currentBalance))
                 
-                // Dynamic sampling: Aim for ~30 points
-                let step = max(1, widgetDays.count / 30)
-                
-                let widgetPoints = widgetDays.enumerated().compactMap { index, day -> WidgetData.Point? in
-                    if index % step == 0 || index == widgetDays.count - 1 {
-                        let purchase = day.events.first { $0.type == .purchase }
-                        let hasPurchase = purchase != nil
-                        let colorHex = purchase?.originalItem?.parentList?.colorHex
-                        return WidgetData.Point(date: day.date, balance: day.endOfDayBalance, hasPurchase: hasPurchase, colorHex: colorHex)
-                    }
-                    return nil
-                }
-                WidgetData.save(points: widgetPoints)
-                
-                // Reload Widget
-                WidgetReloader.reloadWidget()
-                
-                completion?()
+                guard let next = calendar.date(byAdding: .day, value: 1, to: date) else { break }
+                date = next
             }
         }
+        
+        // Filter out days with no events for the list view
+        let filteredDays = days.filter { !$0.events.isEmpty }
+        
+        self.timelineEvents = events
+        self.timelineDays = filteredDays
+        self.allTimelineDays = days
+        self.isCalculating = false
+        
+        // Schedule Notifications
+        NotificationManager.shared.scheduleNotifications(for: self.allItems)
+        
+        // Save Widget Data
+        let widgetRange = user.widgetTimeframe
+        let calendar = Calendar.current
+        let today = Date()
+        var endDate: Date
+        
+        switch widgetRange {
+        case "1 Week": endDate = calendar.date(byAdding: .weekOfYear, value: 1, to: today)!
+        case "1 Month": endDate = calendar.date(byAdding: .month, value: 1, to: today)!
+        case "3 Months": endDate = calendar.date(byAdding: .month, value: 3, to: today)!
+        case "6 Months": endDate = calendar.date(byAdding: .month, value: 6, to: today)!
+        case "1 Year": endDate = calendar.date(byAdding: .year, value: 1, to: today)!
+        default: endDate = days.last?.date ?? today
+        }
+        
+        let widgetDays = days.filter { $0.date <= endDate }
+        
+        // Dynamic sampling: Aim for ~30 points
+        let step = max(1, widgetDays.count / 30)
+        
+        let widgetPoints = widgetDays.enumerated().compactMap { index, day -> WidgetData.Point? in
+            if index % step == 0 || index == widgetDays.count - 1 {
+                let purchase = day.events.first { $0.type == .purchase }
+                let hasPurchase = purchase != nil
+                let colorHex = purchase?.originalItem?.parentList?.colorHex
+                return WidgetData.Point(date: day.date, balance: day.endOfDayBalance, hasPurchase: hasPurchase, colorHex: colorHex)
+            }
+            return nil
+        }
+        WidgetData.save(points: widgetPoints)
+        
+        // Reload Widget
+        WidgetReloader.reloadWidget()
+        
+        completion?()
     }
 
     

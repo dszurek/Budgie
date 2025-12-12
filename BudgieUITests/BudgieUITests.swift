@@ -10,32 +10,24 @@ import XCTest
 final class BudgieUITests: XCTestCase {
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
     @MainActor
-    func testExample() throws {
+    func testTabBarExists_SmokeTest() throws {
         // UI tests must launch the application that they test.
         let app = XCUIApplication()
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    @MainActor
-    func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
-        }
+        // Verify the Tab Bar exists
+        // Note: Your custom BottomBar might be implemented as buttons, not a native UITabBar.
+        // Assuming access via accessibility identifiers or static text for now.
+        // If accessibility IDs aren't set, we look for the labels "Timeline", "Budget", "Wish Lists", "You"
+        
+        let timelineText = app.staticTexts["Timeline"]
+        XCTAssertTrue(timelineText.waitForExistence(timeout: 5), "Timeline tab should be visible")
+        
+        let budgetText = app.staticTexts["Budget"]
+        XCTAssertTrue(budgetText.exists, "Budget tab should be visible")
     }
 }

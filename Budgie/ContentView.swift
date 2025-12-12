@@ -16,8 +16,17 @@ let navBarItems: [BottomBarItem] = [
 ]
 
 struct ContentView: View {
-    @State private var selectedIndex: Int = 0
+    @State private var selectedIndex: Int = ContentView.initialTabIndex()
     @Environment(\.colorScheme) var colorScheme
+    
+    /// Returns the initial tab index, checking for UI test launch arguments
+    private static func initialTabIndex() -> Int {
+        if let tabArg = ProcessInfo.processInfo.environment["UI_TEST_INITIAL_TAB"],
+           let index = Int(tabArg) {
+            return index
+        }
+        return 0
+    }
 
     var body: some View {
         ZStack {

@@ -26,7 +26,14 @@ struct TimelineGraphView: View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
+        // Guard against empty data to prevent crashes and invalid dimensions
+        if days.isEmpty {
+            ContentUnavailableView("No Data", systemImage: "chart.line.downtrend.xyaxis", description: Text("Timeline data will appear here"))
+        } else {
+            let firstDate = days.first!.date
+            let lastDate = days.last!.date
+            
+            GeometryReader { geometry in
             VStack(spacing: 0) {
                 // Split Chart: Static Y-Axis + Scrollable Content
                 HStack(spacing: 0) {
@@ -70,7 +77,7 @@ struct TimelineGraphView: View {
                             balanceLineMarks
                             purchasePointMarks
                         }
-                        .chartXScale(domain: days.first!.date...days.last!.date)
+                        .chartXScale(domain: firstDate...lastDate)
                         .chartYScale(domain: yAxisDomain)
                         .chartXSelection(value: $selectedDate) // Track selection
                         .chartXAxis {
@@ -98,8 +105,8 @@ struct TimelineGraphView: View {
                                     .foregroundStyle(Color.gray.opacity(0.1))
                             }
                         }
-                        // 40pt per day ensures ~10 days fit on a standard screen (approx 1.5 weeks)
-                        .frame(width: max(CGFloat(days.count) * 40, geometry.size.width - 48)) // Adjust for Y-axis width
+                        // Ensure minimum positive width to avoid "Invalid frame dimension" errors
+                        .frame(width: max(CGFloat(days.count) * 40, max(geometry.size.width - 48, 100)))
                         .padding(.horizontal, 20) // Prevent cutoff of first/last points
                     }
                     .onChange(of: selectedDate) {
@@ -136,6 +143,7 @@ struct TimelineGraphView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
     }
     

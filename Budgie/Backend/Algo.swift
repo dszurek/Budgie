@@ -9,8 +9,6 @@ import SwiftData // Assuming your models are SwiftData @Model classes
 
 // MARK: - Data Structures (Mirrors or uses your existing SwiftData models)
 
-// MARK: - Data Structures (Mirrors or uses your existing SwiftData models)
-
 
 // MARK: - Recurrence Rule Definition (Simplified for now)
 // This can be expanded later to support more complex rules.
@@ -79,27 +77,91 @@ class PurchaseScheduler {
         shoppingListItems: inout [ShoppingListItem], // Modifies items directly
         projectionStartDate: Date
     ) {
-        // --- Phase A: Event Timeline Generation & Setup ---
-
+        // --- Setup & Pre-calculations ---
+        let startOfProjection = calendar.startOfDay(for: projectionStartDate)
         let effectiveProjectionEndDate = determineProjectionEndDate(
             forUser: user,
             incomes: incomes,
             expenses: expenses,
             shoppingListItems: shoppingListItems
         )
-
-        var mandatoryEvents = generateMandatoryEventTimeline(
+        let endOfProjection = calendar.startOfDay(for: effectiveProjectionEndDate)
+        
+        // Calculate total days for array sizing
+        let totalDays = calendar.dateComponents([.day], from: startOfProjection, to: endOfProjection).day ?? 365
+        let safeTotalDays = max(totalDays + 1, 1) // Ensure at least 1
+        
+        // --- Phase A: Event Timeline Direct Array Population ---
+        
+        // dailyChanges[i] = Net income/expense change on day i
+        var dailyChanges = Array(repeating: 0.0, count: safeTotalDays)
+        
+        let mandatoryEvents = generateMandatoryEventTimeline(
             incomes: incomes,
             expenses: expenses,
-            projectionStart: projectionStartDate,
-            projectionEnd: effectiveProjectionEndDate
+            projectionStart: startOfProjection,
+            projectionEnd: endOfProjection
         )
-        mandatoryEvents.sort { $0.date < $1.date } // Ensure chronological order
-
-        // Filter out already purchased items and sort pending ones
+        
+        let now = Date()
+        let lastCheckpoint = user.lastCheckpointDate
+        let isBalanceFresh = calendar.isDateInToday(lastCheckpoint) || lastCheckpoint > now
+        
+        for event in mandatoryEvents {
+            let eventStart = calendar.startOfDay(for: event.date)
+            // Skip events that are effectively already in the balance
+            let isEventToday = calendar.isDateInToday(eventStart)
+            if event.date < now || (isEventToday && isBalanceFresh) {
+                continue
+            }
+            
+            if let dayIndex = calendar.dateComponents([.day], from: startOfProjection, to: eventStart).day,
+               dayIndex >= 0, dayIndex < safeTotalDays {
+                dailyChanges[dayIndex] += event.amount
+            }
+        }
+        
+        // --- Calculate Daily Balances Array ---
+        // dailyBalances[i] = End of day balance for day i
+        var dailyBalances = Array(repeating: 0.0, count: safeTotalDays)
+        
+        // Determine where we start applying changes
+        let trackingStartDate = (user.lastCheckpointDate == Date.distantPast ? startOfProjection : user.lastCheckpointDate)
+        let effectiveStart = trackingStartDate < now ? now : trackingStartDate
+        let startOfEffective = calendar.startOfDay(for: effectiveStart)
+        
+        let effectiveStartIndex = max(0, calendar.dateComponents([.day], from: startOfProjection, to: startOfEffective).day ?? 0)
+        
+        var currentRunningBalance = user.currentBalance
+        
+        for i in 0..<safeTotalDays {
+            if i >= effectiveStartIndex {
+                currentRunningBalance += dailyChanges[i]
+            }
+            dailyBalances[i] = currentRunningBalance
+        }
+        
+        // --- Min Future Balance Array ---
+        // minFutureBalance[i] = min(dailyBalances[k]) for all k >= i
+        var minFutureBalance = Array(repeating: dailyBalances.last ?? 0.0, count: safeTotalDays)
+        var minSoFar = dailyBalances.last ?? 0.0
+        
+        for i in (0..<safeTotalDays).reversed() {
+            let bal = dailyBalances[i]
+            if bal < minSoFar {
+                minSoFar = bal
+            }
+            minFutureBalance[i] = minSoFar
+        }
+        
+        print("🗓️ Effective Projection End Date: \(endOfProjection.formatted(date: .complete, time: .complete))")
+        print("💰 Final Projected Balance: $\(currentRunningBalance)")
+        
+        // --- Phase B: Iterative Scheduling Logic with Array Indexing ---
+        
         var pendingShoppingItems = shoppingListItems.filter { !($0.isPurchased ?? false) }
         
-        // Sort by desired date, then price
+        // Sort
         pendingShoppingItems.sort {
             if $0.purchaseByDate != $1.purchaseByDate {
                 return $0.purchaseByDate < $1.purchaseByDate
@@ -107,306 +169,153 @@ class PurchaseScheduler {
             return $0.price < $1.price
         }
         
-        // Reset calculated purchase dates
+        // Reset calculated fields
         for i in 0..<shoppingListItems.count {
             if !(shoppingListItems[i].isPurchased ?? false) {
                 shoppingListItems[i].calculatedPurchaseDate = nil
                 shoppingListItems[i].predictedBalanceAfterPurchase = nil
             }
         }
-
-        // --- Phase B: Iterative Scheduling Logic with Search Window (OPTIMIZED) ---
         
-        // Pre-calculate daily balances for the entire projection period
-        var dailyBalances: [Date: Double] = [:]
-        let currentBalance = user.currentBalance
-        var currentDate = user.lastCheckpointDate == Date.distantPast ? projectionStartDate : user.lastCheckpointDate
-        
-        // Fast-forward to projection start if needed
-        // CRITICAL FIX: Ensure we start from "Now" (Date()) to avoid double counting past events of today
-        // if the user has already updated their balance manually.
-        let now = Date()
-        if currentDate < now {
-            currentDate = now
-        }
-        
-        // Determine if we should ignore today's events
-        // If the last checkpoint was made TODAY (or later), then the user's balance is the "hard truth" for today.
-        // Any income/expense scheduled for today (which defaults to 12:00 AM) should be ignored.
-        let lastCheckpoint = user.lastCheckpointDate
-        let isBalanceFresh = calendar.isDateInToday(lastCheckpoint) || lastCheckpoint > now
-        
-        var eventIndex = 0
-        // Fast forward event index
-        while eventIndex < mandatoryEvents.count {
-            let eventDate = mandatoryEvents[eventIndex].date
-            
-            // If balance is fresh (updated today), we skip events that are strictly BEFORE now (which includes today's 12:00 AM events)
-            // OR if the event is strictly today.
-            if isBalanceFresh && calendar.isDateInToday(eventDate) {
-                eventIndex += 1
-                continue
-            }
-            
-            if eventDate < currentDate {
-                eventIndex += 1
-            } else {
-                break
-            }
-        }
-        
-        // Generate daily base balances (without shopping items)
-        var tempDate = currentDate
-        var tempBalance = currentBalance
-        var tempEventIndex = eventIndex
-        
-        while tempDate <= effectiveProjectionEndDate {
-            let startOfTempDate = calendar.startOfDay(for: tempDate)
-            
-            while tempEventIndex < mandatoryEvents.count &&
-                  calendar.startOfDay(for: mandatoryEvents[tempEventIndex].date) == startOfTempDate {
-                
-                let eventDate = mandatoryEvents[tempEventIndex].date
-                let isEventToday = calendar.isDateInToday(eventDate)
-                
-                // CRITICAL FIX:
-                // 1. If event is strictly in the past (< now), skip it.
-                // 2. OR, if the event is TODAY and our balance is "Fresh" (updated today), skip it.
-                //    This treats the current balance as the "hard truth" for today.
-                if eventDate < now || (isEventToday && isBalanceFresh) {
-                    // Skip this event as it's already accounted for in the current balance
-                } else {
-                    tempBalance += mandatoryEvents[tempEventIndex].amount
-                }
-                tempEventIndex += 1
-            }
-            dailyBalances[startOfTempDate] = tempBalance
-            
-            guard let next = calendar.date(byAdding: .day, value: 1, to: tempDate) else { break }
-            tempDate = next
-        }
-        
-        // CRITICAL OPTIMIZATION: Pre-calculate minimum future balance for each day
-        // This eliminates the O(N) scan per candidate date
-        var minFutureBalance: [Date: Double] = [:]
-        // Initialize with the final balance from the forward loop, which is a safe default for the end of projection
-        var currentFinalBalance = tempBalance
-        var minSoFar = currentFinalBalance
-        
-        print("🗓️ Effective Projection End Date: \(effectiveProjectionEndDate.formatted(date: .complete, time: .complete))")
-        print("💰 Final Projected Balance: $\(tempBalance)")
-        
-        // Walk backwards from end to start
-        var reverseDate = effectiveProjectionEndDate
-        while reverseDate >= currentDate {
-            let startOfReverseDate = calendar.startOfDay(for: reverseDate)
-            
-            // If dailyBalance is missing (e.g. end date alignment issue), use minSoFar (which starts as tempBalance)
-            let balance = dailyBalances[startOfReverseDate] ?? minSoFar
-            
-            if balance < minSoFar {
-                minSoFar = balance
-                // Only log significant drops or low values
-                if minSoFar < 100 {
-                    print("📉 Low Future Balance detected: $\(minSoFar) on \(startOfReverseDate.formatted(.dateTime.month().day().year()))")
-                }
-            }
-            minFutureBalance[startOfReverseDate] = minSoFar
-            
-            guard let prev = calendar.date(byAdding: .day, value: -1, to: reverseDate) else { break }
-            reverseDate = prev
-        }
-        print("✅ Initial MinFutureBalance calculation complete. End Date: \(effectiveProjectionEndDate.formatted(.dateTime.month().day().year()))")
-        
-        // Determine effective rain check minimum
-        // If user has disabled hard rain check, use 0 as minimum
-        // Otherwise use their specified rainCheckMin (but never go below 0)
         let effectiveRainCheck = user.isRainCheckHardConstraint ? max(user.rainCheckMin, 0) : 0
+        let windowDays = user.searchWindowMonths * 30
+        let today = calendar.startOfDay(for: Date())
         
-        // Now schedule items
         for item in pendingShoppingItems {
-            var desiredDate = calendar.startOfDay(for: item.purchaseByDate)
+            let desiredDateRaw = item.purchaseByDate
+            let desiredStart = calendar.startOfDay(for: desiredDateRaw)
             
             // Handle past desired dates - move to today
-            let today = calendar.startOfDay(for: Date())
-            if desiredDate < today {
-                desiredDate = today
-            }
-            let windowMonths = user.searchWindowMonths
+            let effectiveDesiredDate = desiredStart < today ? today : desiredStart
             
-            // Define Search Window
-            let windowStart = calendar.date(byAdding: .month, value: -windowMonths, to: desiredDate) ?? desiredDate
-            let windowEnd = calendar.date(byAdding: .month, value: windowMonths, to: desiredDate) ?? desiredDate
+            // Map to index
+            guard let desiredIndex = calendar.dateComponents([.day], from: startOfProjection, to: effectiveDesiredDate).day else { continue }
             
-            // Clamp window to projection range
-            let searchStart = max(windowStart, projectionStartDate)
-            let searchEnd = min(windowEnd, effectiveProjectionEndDate)
+            // Ensure within bounds (unlikely to fail if projection calculated correctly but stay safe)
+            let clampedDesiredIndex = min(max(0, desiredIndex), safeTotalDays - 1)
             
-            var bestDate: Date?
+            // Search Window Indices
+            let searchStartIndex = max(0, clampedDesiredIndex - windowDays)
+            let searchEndIndex = min(safeTotalDays - 1, clampedDesiredIndex + windowDays)
+            
+            var bestIndex: Int?
             var bestScore: Double = -Double.infinity
-            var rejectionReasons: [String] = []
-            var datesChecked = 0
             
-            // Iterate through search window
-            // Helper to check a date range
-            func checkRange(start: Date, end: Date) {
-                var checkDate = start
-                while checkDate <= end {
-                    datesChecked += 1
-                    let startOfCheckDate = calendar.startOfDay(for: checkDate)
+            // Helper to check range
+            func checkIndexRange(start: Int, end: Int) {
+                guard start <= end else { return }
+                
+                for i in start...end {
+                    let base = dailyBalances[i]
+                    let minFut = minFutureBalance[i]
                     
-                    let baseBalance = dailyBalances[startOfCheckDate] ?? 0
-                    let minFuture = minFutureBalance[startOfCheckDate] ?? baseBalance
-                    
-                    var isSafe = true
-                    var rejectionReason = ""
-                    
-                    if (baseBalance - item.price) < effectiveRainCheck {
-                        isSafe = false
-                        rejectionReason = "Projected balance on \(startOfCheckDate.formatted(.dateTime.month().day())) ($\(String(format: "%.0f", baseBalance))) is insufficient. Needs $\(String(format: "%.0f", effectiveRainCheck + item.price)) (Item $\(String(format: "%.0f", item.price)) + Rain Check $\(String(format: "%.0f", effectiveRainCheck)))"
-                    } else if (minFuture - item.price) < effectiveRainCheck {
-                        isSafe = false
-                        rejectionReason = "Future shortfall: Future min $\(String(format: "%.0f", minFuture)) drops below Rain Check after purchase"
-                    }
-                    
-                    if !isSafe {
-                        // Keep the first few reasons for debugging/display
-                        if rejectionReasons.count < 3 {
-                            rejectionReasons.append("\(startOfCheckDate.formatted(.dateTime.month().day())): \(rejectionReason)")
-                        }
-                        // Always track the last reason to show the user "how far we looked"
-                    }
-                    
-                    if isSafe {
-                        // Calculate Score
+                    if (base - item.price) >= effectiveRainCheck && (minFut - item.price) >= effectiveRainCheck {
+                        // Safe to buy
                         var score: Double = 0
                         
-                        // A. Distance Score (Penalty for being far from desired date)
-                        let daysDiff = abs(calendar.dateComponents([.day], from: desiredDate, to: startOfCheckDate).day ?? 0)
-                        // Use a larger denominator for the extended search to avoid huge penalties
-                        let maxDays = Double(windowMonths * 30)
-                        let distanceScore = max(0, 100 * (1 - Double(daysDiff) / (maxDays * 2))) 
-                        score += distanceScore
+                        // A. Distance Score
+                        let dist = abs(i - clampedDesiredIndex)
+                        let maxDist = Double(windowDays * 2)
+                        // Normalize dist calculation
+                        let distScore = max(0, 100 * (1 - Double(dist) / (maxDist + 1)))
+                        score += distScore
                         
-                        // B. Savings Goal Score (Soft Constraint & Proximity Bonus)
-                        // Only apply strong bonus if user prioritizes savings goal
+                        // B. Savings Goal
                         if user.prioritizeSavingsGoal {
-                            if baseBalance - item.price >= user.targetSavings {
-                                score += 50 // Bonus for keeping above savings goal
-                                
-                                // Proximity Bonus: Higher score if we are close to the target (e.g. within 10% above)
-                                // This encourages spending "excess" funds rather than hoarding far above the goal
-                                let surplus = (baseBalance - item.price) - user.targetSavings
-                                let target10Percent = max(user.targetSavings * 0.10, 100) // At least $100 range
-                                
-                                if surplus <= target10Percent {
-                                    // We are in the "sweet spot" just above the target
+                            if (base - item.price) >= user.targetSavings {
+                                score += 50
+                                let surplus = (base - item.price) - user.targetSavings
+                                if surplus <= max(user.targetSavings * 0.10, 100) {
                                     score += 50
                                 }
                             }
                         } else {
-                            // If not prioritized, give a much smaller bonus just for being positive/healthy
-                            // but don't heavily penalize dipping into savings (unless hard constraint is on)
-                            if baseBalance - item.price >= user.targetSavings {
-                                score += 10 // Small bonus
+                            if (base - item.price) >= user.targetSavings {
+                                score += 10
                             }
                         }
                         
-                        // C. Prioritize Earlier Dates
+                        // C. Earlier Dates
                         if user.prioritizeEarlierDates {
-                            if checkDate < desiredDate {
-                                // SIGNIFICANTLY increased weight for earlier dates
-                                // We want to find the *earliest* safe date.
-                                // Score based on how many days early it is.
-                                let daysEarly = calendar.dateComponents([.day], from: checkDate, to: desiredDate).day ?? 0
-                                // Cap the bonus to avoid overflowing logic, but make it very strong (e.g. 5 points per day)
-                                score += Double(max(0, daysEarly)) * 5.0
-                                score += 100 // Flat bonus for being early at all
+                            if i < clampedDesiredIndex {
+                                let daysEarly = clampedDesiredIndex - i
+                                score += Double(daysEarly) * 5.0
+                                score += 100
                             }
                         }
                         
                         if score > bestScore {
                             bestScore = score
-                            bestDate = startOfCheckDate
+                            bestIndex = i
                         }
                     }
-                    
-                    guard let next = calendar.date(byAdding: .day, value: 1, to: checkDate) else { break }
-                    checkDate = next
                 }
             }
             
-            // 1. Primary Search: Within Window
-            checkRange(start: searchStart, end: searchEnd)
+            // 1. Primary Search
+            checkIndexRange(start: searchStartIndex, end: searchEndIndex)
             
-            // 2. Secondary Search: Extended Range (if no date found)
-            if bestDate == nil {
-                // Search forward from window end
-                if let nextStart = calendar.date(byAdding: .day, value: 1, to: searchEnd), nextStart <= effectiveProjectionEndDate {
-                     checkRange(start: nextStart, end: effectiveProjectionEndDate)
+            // 2. Secondary Search (Extended)
+            if bestIndex == nil {
+                // Forward
+                if searchEndIndex + 1 < safeTotalDays {
+                    checkIndexRange(start: searchEndIndex + 1, end: safeTotalDays - 1)
                 }
-                // Search backward from window start (if valid)
-                if let prevEnd = calendar.date(byAdding: .day, value: -1, to: searchStart), prevEnd >= projectionStartDate {
-                    checkRange(start: projectionStartDate, end: prevEnd)
+                // Backward
+                if bestIndex == nil && searchStartIndex - 1 >= 0 {
+                    checkIndexRange(start: 0, end: searchStartIndex - 1)
                 }
             }
             
             // Schedule if found
-            if let date = bestDate {
+            if let index = bestIndex {
+                // Update Item
                 if let originalIndex = shoppingListItems.firstIndex(where: { $0.id == item.id }) {
+                    let date = calendar.date(byAdding: .day, value: index, to: startOfProjection)!
                     shoppingListItems[originalIndex].calculatedPurchaseDate = date
-                    shoppingListItems[originalIndex].calculationError = nil // Clear error
-                    
-                    // Calculate predicted balance after purchase
-                    let startOfDate = calendar.startOfDay(for: date)
-                    if let balanceBefore = dailyBalances[startOfDate] {
-                        shoppingListItems[originalIndex].predictedBalanceAfterPurchase = balanceBefore - item.price
+                    shoppingListItems[originalIndex].calculationError = nil
+                    shoppingListItems[originalIndex].predictedBalanceAfterPurchase = dailyBalances[index] - item.price
+                }
+                
+                // Update Arrays - FAST
+                let price = item.price
+                
+                // Update futures (daily balance decreases for all subsequent days)
+                for i in index..<safeTotalDays {
+                    dailyBalances[i] -= price
+                    minFutureBalance[i] -= price
+                }
+                
+                // Back-propagate min future impact
+                // Since minFuture[i] = min(daily[i], minFuture[i+1])
+                // We just lowered everything >= index.
+                // We need to check if minFutureBalance[index] (NEW) becomes the new min for predecessors.
+                if index > 0 {
+                    // Back-propagate impact
+                    for i in (0..<index).reversed() {
+                        let bal = dailyBalances[i]
+                        // Logic: minFuture[i] is min(bal, minFuture[i+1])
+                        // We compare against the (potentially lowered) neighbor.
+                        let neighborMin = minFutureBalance[i+1] // We just updated this or it's from loop above
+                        
+                        // But wait, accessing i+1 in loop is safe because we go reversed.
+                        // Optimization:
+                        // minFuture[i] = min(bal, minFuture[i+1])
+                        // But we can just propagate the specific change?
+                        // Using the standard min definition is robust.
+                        minFutureBalance[i] = min(bal, neighborMin)
                     }
                 }
                 
-                // Update dailyBalances AND minFutureBalance for all future dates
-                var updateDate = date
-                while updateDate <= effectiveProjectionEndDate {
-                    let startOfUpdateDate = calendar.startOfDay(for: updateDate)
-                    if let current = dailyBalances[startOfUpdateDate] {
-                        dailyBalances[startOfUpdateDate] = current - item.price
-                    }
-                    guard let next = calendar.date(byAdding: .day, value: 1, to: updateDate) else { break }
-                    updateDate = next
-                }
-                
-                // Update the tracked final balance
-                currentFinalBalance -= item.price
-                
-                // Recalculate minFutureBalance from end of projection back to START of projection
-                // This ensures that a purchase in the future (e.g. Dec 12) correctly lowers the minFutureBalance for earlier dates (e.g. Dec 10)
-                reverseDate = effectiveProjectionEndDate
-                // Initialize with the final balance (tempBalance logic) to be safe
-                // We can re-use the logic from the initial pass:
-                // Find the balance of the last day.
-                // Find the balance of the last day.
-                let lastDayStart = calendar.startOfDay(for: effectiveProjectionEndDate)
-                // Use currentFinalBalance as the source of truth for the end of the timeline
-                minSoFar = dailyBalances[lastDayStart] ?? currentFinalBalance
-                
-                while reverseDate >= projectionStartDate {
-                    let startOfReverseDate = calendar.startOfDay(for: reverseDate)
-                    let balance = dailyBalances[startOfReverseDate] ?? minSoFar
-                    if balance < minSoFar {
-                        minSoFar = balance
-                    }
-                    minFutureBalance[startOfReverseDate] = minSoFar
-                    
-                    guard let prev = calendar.date(byAdding: .day, value: -1, to: reverseDate) else { break }
-                    reverseDate = prev
-                }
             } else {
-                // Set error on item
                 if let originalIndex = shoppingListItems.firstIndex(where: { $0.id == item.id }) {
                     shoppingListItems[originalIndex].calculatedPurchaseDate = nil
+                    // More specific error message could be derived but keeping it simple for perf
+                    shoppingListItems[originalIndex].calculationError = "Insufficient funds/buffers within projection"
                 }
             }
         }
+        
         print("\n✅ Algorithm complete\n")
     }
 

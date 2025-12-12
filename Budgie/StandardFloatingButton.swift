@@ -16,6 +16,8 @@ struct StandardFloatingButton: View {
     var isOpen: Binding<Bool>? = nil
     var menuItems: [StandardFloatingMenuItem] = []
     
+    var accessibilityIdentifier: String? = nil
+    
     var body: some View {
         VStack {
             Spacer()
@@ -86,6 +88,7 @@ struct StandardFloatingButton: View {
                                 .rotationEffect(.degrees(isOpen?.wrappedValue == true ? 45 : 0))
                         }
                     }
+                    .accessibilityIdentifier(accessibilityIdentifier ?? icon)
                 }
             }
             .padding(.trailing, 16)

@@ -303,7 +303,8 @@ struct ShoppingListsView: View {
                 action: {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     showAddList = true
-                }
+                },
+                accessibilityIdentifier: "Add List"
             )
         }
         .sheet(item: $selectedItem) { item in
@@ -324,6 +325,7 @@ struct ShoppingListsView: View {
         }
         .alert("New List", isPresented: $showAddList) {
             TextField("List Name", text: $newListName)
+                .accessibilityIdentifier("ListNameField")
             Button("Cancel", role: .cancel) { }
             Button("Create") {
                 let newList = ShoppingList(name: newListName)

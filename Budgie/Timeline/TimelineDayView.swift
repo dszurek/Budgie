@@ -44,6 +44,7 @@ struct TimelineDayView: View {
                     HStack {
                         Image(systemName: eventIcon(for: event))
                             .foregroundColor(color(for: event))
+                            .accessibilityHidden(true)
                         Text(event.title)
                             .font(.subheadline)
                             .lineLimit(1)
