@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "EB692E1C-4688-4869-BBE2-F43A3F7F07C7",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Budgie.xcodeproj",
+      "identifier" : "B43EEE9C2DC92536007703B3",
+      "name" : "Budgie"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Budgie.xcodeproj",
+        "identifier" : "B43EEEB62DC9253B007703B3",
+        "name" : "BudgieUITests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Budgie.xcodeproj",
+        "identifier" : "B43EEEAC2DC9253B007703B3",
+        "name" : "BudgieTests"
+      }
+    }
+  ],
+  "version" : 1
+}
