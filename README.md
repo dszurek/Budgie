@@ -3,6 +3,8 @@
 
 Budgie is a native iOS application built with **SwiftUI** and **SwiftData** designed to help individuals with sporadic income plan their finances. Unlike traditional budgeting apps that track past spending, Budgie uses a custom predictive algorithm to schedule future purchases without compromising financial safety.
 
+### Budgie's live on the App Store! Check it out here: https://apps.apple.com/us/app/budgie-smart-expense-planning/id6755897739.
+
 ## 📱 Project Overview
 
 This project demonstrates a modern, production-ready iOS architecture focusing on:
@@ -41,7 +43,7 @@ The `graphWidget` extension shares code with the main app via **App Groups**.
 
 ## 💻 Tech Stack
 
-- **Language**: Swift 5.0
+- **Language**: Swift
 - **UI**: SwiftUI, Swift Charts
 - **Storage**: SwiftData, App Groups (UserDefaults/FileCoordinator)
-- **Platform**: iOS 17.0+
+- **Platform**: iOS 26.0+
